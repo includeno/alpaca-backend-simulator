@@ -14,6 +14,8 @@ async def get_latest_quote(symbol: str):
         "quote": {
             "bp": 150.00,  # Bid price
             "ap": 150.05,  # Ask price
+            "bs": 10,      # Bid size (integer)
+            "as": 12,      # Ask size (integer)
             "t": datetime.datetime.utcnow().isoformat() + "Z" # Timestamp
         }
     }

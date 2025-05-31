@@ -38,3 +38,30 @@ def mock_trading_base_url():
 def mock_market_data_base_url():
     # This should be the URL for the market data simulator
     return os.getenv("MARKET_DATA_SIMULATOR_URL")
+
+
+from alpaca.trading.client import TradingClient
+from alpaca.data.historical.stock import StockHistoricalDataClient
+# pytest and os should already be imported. load_dotenv might be if used directly.
+
+@pytest.fixture(scope="session")
+def mock_trading_client(mock_api_key, mock_secret_key, mock_trading_base_url) -> TradingClient:
+    # mock_trading_base_url is from existing fixtures in conftest.py
+    # For alpaca-py, the base_url is set via url_override in client_kwargs
+    # and paper=True should be used if not live, to avoid SDK trying to hit live by default if url_override is not properly structured.
+    # However, with full url_override, paper=True might not be strictly needed but good for clarity.
+    return TradingClient(
+        api_key=mock_api_key,
+        secret_key=mock_secret_key,
+        paper=True, # Important for paper or mock.
+        url_override=mock_trading_base_url
+    )
+
+@pytest.fixture(scope="session")
+def mock_stock_data_client(mock_api_key, mock_secret_key, mock_market_data_base_url) -> StockHistoricalDataClient:
+    # mock_market_data_base_url is from existing fixtures in conftest.py
+    return StockHistoricalDataClient(
+        api_key=mock_api_key,
+        secret_key=mock_secret_key,
+        url_override=mock_market_data_base_url
+    )
