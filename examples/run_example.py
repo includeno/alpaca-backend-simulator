@@ -186,8 +186,8 @@ def run_examples():
 
 
     except APIError as e:
-        print(f"\n!!! An Alpaca API error occurred during trading examples: {e}")
-        print(f"!!! Status: {e.status_code}, Message: {e.message}")
+        print(f"\n!!! An Alpaca API error occurred during trading examples: {str(e)}") # Using str(e) for robust summary
+        # The detailed response (if JSON) is still attempted below, which is good.
         if hasattr(e, 'response') and e.response is not None:
             try:
                 error_details = e.response.json() # Alpaca often returns JSON errors
@@ -226,8 +226,8 @@ def run_examples():
             print("   No bars found for TSLA in the example response.")
 
     except APIError as e:
-        print(f"\n!!! An Alpaca API error occurred during market data examples: {e}")
-        print(f"!!! Status: {e.status_code}, Message: {e.message}")
+        print(f"\n!!! An Alpaca API error occurred during market data examples: {str(e)}") # Using str(e) for robust summary
+        # The detailed response (if JSON) is still attempted below.
         if hasattr(e, 'response') and e.response is not None:
             try:
                 error_details = e.response.json()
