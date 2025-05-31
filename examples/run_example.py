@@ -13,7 +13,8 @@ from alpaca.trading.requests import (
     QueryOrderStatus # Enum for order status filtering
 )
 from alpaca.data.historical.stock import StockHistoricalDataClient
-from alpaca.data.requests import StockLatestQuoteRequest, StockBarsRequest, StockTimeFrame
+from alpaca.data.requests import StockLatestQuoteRequest, StockBarsRequest # StockTimeFrame moved
+from alpaca.data.enums import StockTimeFrame # StockTimeFrame imported from enums
 from alpaca.common.exceptions import APIError
 
 from config import settings # Import project settings
