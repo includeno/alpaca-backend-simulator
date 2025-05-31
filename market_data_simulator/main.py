@@ -12,11 +12,11 @@ app = FastAPI()
 
 class QuoteData(BaseModel):
     ask_price: float = Field(alias="ap")
-    ask_size: int = Field(alias="as")
-    ask_exchange: str = Field(alias="ax")
+    ask_size: float = Field(alias="as") # Changed to float
+    ask_exchange: Optional[str] = Field(default=None, alias="ax") # Changed to Optional[str]
     bid_price: float = Field(alias="bp")
-    bid_size: int = Field(alias="bs")
-    bid_exchange: str = Field(alias="bx")
+    bid_size: float = Field(alias="bs") # Changed to float
+    bid_exchange: Optional[str] = Field(default=None, alias="bx") # Changed to Optional[str]
     conditions: Optional[List[str]] = Field(default=None, alias="c")
     timestamp: str = Field(alias="t")
     tape: Optional[str] = Field(default=None, alias="z")
@@ -43,29 +43,41 @@ async def get_latest_quotes_for_symbols(
         # Generate local variables for quote data
         local_bid_price = round(random.uniform(50, 500), 2)
         local_ask_price = round(local_bid_price + random.uniform(0.01, 0.20), 2)
-        local_ask_size_val = random.randint(1, 10) * 100
-        local_ask_exchange_val = "MOCK_EX_ASK"
-        local_bid_size_val = random.randint(1, 10) * 100
-        local_bid_exchange_val = "MOCK_EX_BID"
+
+        # Explicitly float for sizes
+        local_ask_size_val = float(random.randint(1, 10) * 100)
+        local_bid_size_val = float(random.randint(1, 10) * 100)
+
+        # Exchanges can now be None
+        possible_exchanges = ["NASDAQ", "NYSE", "ARCA", None]
+        local_ask_exchange_val = random.choice(possible_exchanges)
+        local_bid_exchange_val = random.choice(possible_exchanges)
+
         local_conditions_val = ["R"] if random.choice([True, False]) else None
         local_timestamp_val = now_utc.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
         local_tape_val = random.choice(["A", "B", "C"]) if random.choice([True, False]) else None
 
-        # Create a dictionary using descriptive Python field names
-        quote_data_dict_for_fastapi = {
-            "ask_price": local_ask_price,
-            "ask_size": local_ask_size_val,
-            "ask_exchange": local_ask_exchange_val,
-            "bid_price": local_bid_price,
-            "bid_size": local_bid_size_val,
-            "bid_exchange": local_bid_exchange_val,
-            "conditions": local_conditions_val,
-            "timestamp": local_timestamp_val,
-            "tape": local_tape_val
-        }
-        # FastAPI will take this dict, parse it into QuoteData (using field names due to populate_by_name),
-        # and then serialize the QuoteData instance to JSON (using aliases).
-        response_data[sym_ticker] = quote_data_dict_for_fastapi
+        # Step 1: Create QuoteData model instance using descriptive Python field names
+        quote_instance = QuoteData(
+            ask_price=local_ask_price,
+            ask_size=local_ask_size_val, # Already float from previous step
+            ask_exchange=local_ask_exchange_val,
+            bid_price=local_bid_price,
+            bid_size=local_bid_size_val,   # Already float from previous step
+            bid_exchange=local_bid_exchange_val,
+            conditions=local_conditions_val,
+            timestamp=local_timestamp_val,
+            tape=local_tape_val
+        )
+
+        # Step 2: Convert this quote_instance to a dictionary using its field aliases.
+        # For Pydantic V2 (preferred)
+        aliased_quote_dict = quote_instance.model_dump(by_alias=True)
+        # For Pydantic V1 fallback:
+        # aliased_quote_dict = quote_instance.dict(by_alias=True)
+
+        # Step 3: Change the assignment to response_data to use this new aliased dictionary
+        response_data[sym_ticker] = aliased_quote_dict
 
     if not response_data:
         pass
