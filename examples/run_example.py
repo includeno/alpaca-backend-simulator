@@ -13,8 +13,9 @@ from alpaca.trading.requests import (
     QueryOrderStatus # Enum for order status filtering
 )
 from alpaca.data.historical.stock import StockHistoricalDataClient
-from alpaca.data.requests import StockLatestQuoteRequest, StockBarsRequest # StockTimeFrame moved
-from alpaca.data.enums import StockTimeFrame # StockTimeFrame imported from enums
+from alpaca.data.requests import StockLatestQuoteRequest, StockBarsRequest
+# Removed: from alpaca.data.enums import StockTimeFrame (and any other StockTimeFrame or direct TimeFrame import)
+from alpaca.data.timeframe import TimeFrame, TimeFrameUnit # Corrected import
 from alpaca.common.exceptions import APIError
 
 from config import settings # Import project settings
@@ -197,7 +198,7 @@ def run_examples():
         print("\n2. Fetching 1-Day Bars for TSLA...")
         bars_req = StockBarsRequest(
             symbol_or_symbols="TSLA",
-            timeframe=StockTimeFrame.DAY,
+            timeframe=TimeFrame.Day, # Use TimeFrame class property
             start=datetime(2023, 1, 1, tzinfo=timezone.utc),
             end=datetime(2023, 1, 5, tzinfo=timezone.utc)
         )

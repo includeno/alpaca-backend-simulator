@@ -16,7 +16,9 @@ from alpaca.trading.enums import (
 from alpaca.trading.models import Account, Position, Order
 from alpaca.data.historical.stock import StockHistoricalDataClient
 from alpaca.data.requests import StockLatestQuoteRequest, StockBarsRequest
-from alpaca.data.enums import StockTimeFrame
+# from alpaca.data.enums import StockTimeFrame # Removed (ensuring it's gone)
+# from alpaca.data import TimeFrame # Removed
+from alpaca.data.timeframe import TimeFrame, TimeFrameUnit # Corrected import
 from alpaca.data.models import Quote, Bar
 from alpaca.common.exceptions import APIError # For exception checking
 from datetime import datetime, timezone
@@ -185,7 +187,7 @@ class TestAlpacaPyIntegration:
         symbol = "TSLA" # Mock service returns this
         req = StockBarsRequest(
             symbol_or_symbols=symbol,
-            timeframe=StockTimeFrame.DAY, # Using SDK enum
+            timeframe=TimeFrame.Day, # Use TimeFrame class property
             start=datetime(2023, 1, 1, tzinfo=timezone.utc), # Using datetime objects
             end=datetime(2023, 1, 5, tzinfo=timezone.utc)
         )
