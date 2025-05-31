@@ -47,16 +47,27 @@ async def get_latest_quotes_for_symbols(
         bid_price = round(random.uniform(50, 500), 2)
         ask_price = round(bid_price + random.uniform(0.01, 0.20), 2) # Ensure ask is higher
 
+        # Values for QuoteData instantiation using descriptive field names
+        local_ask_price = ask_price
+        local_ask_size = random.randint(1, 10) * 100
+        local_ask_exchange = "MOCK_EX_ASK" # Differentiated for clarity
+        local_bid_price = bid_price
+        local_bid_size = random.randint(1, 10) * 100
+        local_bid_exchange = "MOCK_EX_BID" # Differentiated for clarity
+        local_conditions = ["R"]
+        local_timestamp = now_utc # This is already a datetime object
+        local_tape = "A"
+
         quote_details = QuoteData(
-            ap=ask_price,
-            as_=random.randint(1, 10) * 100, # ask_size
-            ax="MOCK_EX", # ask_exchange
-            bp=bid_price,
-            bs=random.randint(1, 10) * 100, # bid_size
-            bx="MOCK_EX", # bid_exchange
-            c=["R"], # conditions, "R" is regular
-            t=now_utc, # timestamp
-            z="A" # tape, example, could be "C" for CTA etc.
+            ask_price=local_ask_price,
+            ask_size=local_ask_size,
+            ask_exchange=local_ask_exchange,
+            bid_price=local_bid_price,
+            bid_size=local_bid_size,
+            bid_exchange=local_bid_exchange,
+            conditions=local_conditions,
+            timestamp=local_timestamp, # Pass the datetime object directly
+            tape=local_tape
         )
         response_data[sym_ticker] = quote_details
 
