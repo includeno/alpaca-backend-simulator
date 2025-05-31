@@ -26,13 +26,29 @@ def run_examples():
     print(f"Using MARKET_DATA_SIMULATOR_URL (for StockHistoricalDataClient): {settings.MARKET_DATA_SIMULATOR_URL}")
     print("--- --- --- ---\n")
 
+    # Default mock keys if not provided by environment
+    DEFAULT_API_KEY = "DEFAULT_MOCK_API_KEY"
+    DEFAULT_SECRET_KEY = "DEFAULT_MOCK_SECRET_KEY"
+
     api_key_to_use = settings.API_KEY
     secret_key_to_use = settings.SECRET_KEY
 
-    if not api_key_to_use or not secret_key_to_use or "YOUR_MOCK_API_KEY" in api_key_to_use or "test_api_key" in api_key_to_use:
-        print("Warning: Using default, placeholder, or test API key/secret. ")
-        print("Ensure ALPACA_API_KEY and ALPACA_SECRET_KEY in your .env file are set for real trading, ")
-        print("or are set to appropriate mock values if using mock services intentionally.\n")
+    using_defaults = False
+    if not api_key_to_use:
+        api_key_to_use = DEFAULT_API_KEY
+        using_defaults = True
+    if not secret_key_to_use:
+        secret_key_to_use = DEFAULT_SECRET_KEY
+        using_defaults = True
+
+    if using_defaults:
+        print(f"Warning: ALPACA_API_KEY or ALPACA_SECRET_KEY not found in environment or .env file. "
+              f"Using hardcoded default mock keys ('{DEFAULT_API_KEY}', '{DEFAULT_SECRET_KEY[:4]}...'). "
+              f"Please set them in your .env file for specific mock keys or real trading.\n")
+    elif "YOUR_MOCK_API_KEY" in api_key_to_use or api_key_to_use == "test_api_key": # Or other known placeholders
+         print("Info: Using placeholder or test API keys from .env file. This is fine for mock testing.\n")
+    else:
+        print("Info: Using API keys loaded from your environment/.env file.\n")
 
     # Instantiate TradingClient for trading operations
     # Uses APCA_API_KEY_ID and APCA_API_SECRET_KEY if api_key/secret_key are None
