@@ -42,8 +42,8 @@ class OrderRequest(BaseModel):
     side: str # 'buy' or 'sell'
     type: str # 'market', 'limit', etc.
     time_in_force: str # 'day', 'gtc', etc.
-    limit_price: Optional[str] = None # Optional, for limit orders
-    stop_price: Optional[str] = None  # Optional, for stop orders
+    limit_price: Optional[float] = None # Changed to float
+    stop_price: Optional[float] = None  # Changed to float
     client_order_id: Optional[str] = None # Optional
 
 @app.get("/v2/account")
@@ -96,8 +96,8 @@ async def place_order_endpoint(order_request: OrderRequest):
         "type": order_request.type,
         "side": order_request.side,
         "time_in_force": order_request.time_in_force,
-        "limit_price": order_request.limit_price,
-        "stop_price": order_request.stop_price,
+        "limit_price": str(order_request.limit_price) if order_request.limit_price is not None else None,
+        "stop_price": str(order_request.stop_price) if order_request.stop_price is not None else None,
         "status": "accepted", # Initial status for non-market orders
         "extended_hours": False,
         "legs": None,
