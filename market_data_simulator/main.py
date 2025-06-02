@@ -12,15 +12,15 @@ app = FastAPI()
 
 # --- Quote Data Models and Endpoint ---
 class QuoteData(BaseModel):
-    ask_price: float = Field(alias="ap")
-    ask_size: float = Field(alias="as")
-    ask_exchange: Optional[str] = Field(default=None, alias="ax")
-    bid_price: float = Field(alias="bp")
-    bid_size: float = Field(alias="bs")
-    bid_exchange: Optional[str] = Field(default=None, alias="bx")
-    conditions: Optional[List[str]] = Field(default=None, alias="c")
-    timestamp: str = Field(alias="t")
-    tape: Optional[str] = Field(default=None, alias="z")
+    ask_price: float = Field()
+    ask_size: float = Field() # Changed to float
+    ask_exchange: Optional[str] = Field(default=None) # Changed to Optional[str]
+    bid_price: float = Field()
+    bid_size: float = Field() # Changed to float
+    bid_exchange: Optional[str] = Field(default=None) # Changed to Optional[str]
+    conditions: Optional[List[str]] = Field(default=None)
+    timestamp: str = Field()
+    tape: Optional[str] = Field(default=None)
 
     model_config = {
         "populate_by_name": True

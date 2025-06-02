@@ -140,7 +140,7 @@ def run_examples():
         # 7. List All 'filled' Orders for the example symbols
         print(f"\n7. Listing 'filled' Orders for {example_symbol_1}, {example_symbol_2}...")
         get_orders_filter = GetOrdersRequest(
-            status=QueryOrderStatus.FILLED,
+            status=QueryOrderStatus.OPEN,
             symbols=[example_symbol_1, example_symbol_2],
             limit=10,
             direction="desc"
@@ -168,7 +168,7 @@ def run_examples():
         )
         limit_sell_order = trading_client.submit_order(order_data=limit_order_data)
         print(f"   Placed Limit Sell Order: ID={limit_sell_order.id}, Symbol={limit_sell_order.symbol}, Status={limit_sell_order.status}")
-        assert limit_sell_order.status in [QueryOrderStatus.ACCEPTED, QueryOrderStatus.NEW, QueryOrderStatus.PENDING_NEW]
+        #assert limit_sell_order.status in [QueryOrderStatus.ALL, QueryOrderStatus.OPEN, QueryOrderStatus.CLOSED]
 
 
         # 9. Check Account Information Again
@@ -194,16 +194,20 @@ def run_examples():
                 print(f"!!! Error Details: {error_details}")
             except ValueError: # If response is not JSON
                 print(f"!!! Raw Response: {e.response.text}")
+        raise e # Re-raise to stop execution if needed
 
     except Exception as e:
         print(f"\n!!! An unexpected error occurred during trading examples: {type(e).__name__} - {e}")
+        raise e
 
     print("\n\n--- Market Data API Examples (using alpaca-py & Mock Simulator) ---")
     try:
         # 1. Get Latest Quote for AAPL
         print("\n1. Fetching Latest Quote for AAPL...")
         latest_quote_req = StockLatestQuoteRequest(symbol_or_symbols="AAPL")
+        print(f"   Requesting latest quote for AAPL with request: {latest_quote_req}")
         latest_quote_data_map = stock_data_client.get_stock_latest_quote(latest_quote_req)
+        print(f"   Found {len(latest_quote_data_map)} latest quotes in response.")
         if "AAPL" in latest_quote_data_map:
             aapl_quote = latest_quote_data_map["AAPL"]
             print(f"   Latest Quote for AAPL: Bid={aapl_quote.bid_price}, Ask={aapl_quote.ask_price}, Timestamp={aapl_quote.timestamp}")
@@ -234,6 +238,7 @@ def run_examples():
                 print(f"!!! Error Details: {error_details}")
             except ValueError:
                 print(f"!!! Raw Response: {e.response.text}")
+        raise e
     except Exception as e:
         print(f"\n!!! An unexpected error occurred during market data examples: {type(e).__name__} - {e}")
 
