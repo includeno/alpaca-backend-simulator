@@ -1,39 +1,12 @@
-from fastapi import FastAPI, Query, HTTPException
-import uvicorn
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from urllib.parse import urlparse
 from datetime import datetime, timezone
 import random
+from typing import List, Optional, Dict, Any
+from .models import QuoteData, BarData, BarsResponse
 
-from config.settings import MARKET_DATA_SIMULATOR_URL
-
-app = FastAPI()
-
-# --- Quote Data Models and Endpoint ---
-class QuoteData(BaseModel):
-    ask_price: float = Field()
-    ask_size: float = Field() # Changed to float
-    ask_exchange: Optional[str] = Field(default=None) # Changed to Optional[str]
-    bid_price: float = Field()
-    bid_size: float = Field() # Changed to float
-    bid_exchange: Optional[str] = Field(default=None) # Changed to Optional[str]
-    conditions: Optional[List[str]] = Field(default=None)
-    timestamp: str = Field()
-    tape: Optional[str] = Field(default=None)
-
-    model_config = {
-        "populate_by_name": True
-    }
-
-@app.get("/v2/stocks/quotes/latest", response_model=Dict[str, QuoteData])
-async def get_latest_quotes_for_symbols(
-    symbols: str = Query(..., description="A comma-separated list of stock symbols, e.g., AAPL,MSFT")
-):
-    requested_symbols = [s.strip().upper() for s in symbols.split(',')]
+def generate_latest_quotes(symbols_list: List[str]) -> Dict[str, QuoteData]:
     response_data: Dict[str, Any] = {}
-
-    for sym_ticker in requested_symbols:
+    # requested_symbols already processed in API layer
+    for sym_ticker in symbols_list:
         now_utc = datetime.now(timezone.utc)
 
         local_bid_price = round(random.uniform(100, 200), 2)
@@ -58,42 +31,10 @@ async def get_latest_quotes_for_symbols(
             timestamp=local_timestamp_val,
             tape=local_tape_val
         )
-        try:
-            aliased_quote_dict = quote_instance.model_dump(by_alias=True)
-        except AttributeError:
-            aliased_quote_dict = quote_instance.dict(by_alias=True)
-        response_data[sym_ticker] = aliased_quote_dict
-
+        response_data[sym_ticker] = quote_instance
     return response_data
 
-# --- Bar Data Models and Endpoint ---
-class BarData(BaseModel):
-    close_price: float = Field(alias="c")
-    high_price: float = Field(alias="h")
-    low_price: float = Field(alias="l")
-    trade_count: Optional[float] = Field(default=None, alias="n") # Changed from Optional[int]
-    open_price: float = Field(alias="o")
-    timestamp: str = Field(alias="t") # Expects ISO 8601 string
-    volume: float = Field(alias="v") # Changed from int
-    vwap: Optional[float] = Field(default=None, alias="vw")
-
-    model_config = {
-        "populate_by_name": True
-    }
-
-class BarsResponse(BaseModel):
-    bars: List[BarData]
-    symbol: str
-    next_page_token: Optional[str] = None
-
-
-@app.get("/v2/stocks/{symbol}/bars", response_model=BarsResponse)
-async def get_historical_bars(
-    symbol: str,
-    start_date: Optional[str] = Query(None, alias="start"), # Use alias for query params if needed
-    end_date: Optional[str] = Query(None, alias="end"),
-    timeframe: Optional[str] = Query(None) # Alpaca uses "timeframe", not StockTimeFrame for query
-):
+def generate_historical_bars(symbol: str, start_date: Optional[str], end_date: Optional[str], timeframe: Optional[str]) -> BarsResponse:
     bars_data: List[BarData] = []
     # Simulate generating a few bars. In a real scenario, this would depend on start/end/timeframe.
     num_bars = random.randint(1, 5)
@@ -132,9 +73,3 @@ async def get_historical_bars(
         symbol=symbol.upper(),
         next_page_token=None # Can be a string if pagination is implemented
     )
-
-if __name__ == "__main__":
-    parsed_url = urlparse(MARKET_DATA_SIMULATOR_URL)
-    host = parsed_url.hostname if parsed_url.hostname else "localhost"
-    port = parsed_url.port if parsed_url.port else 8001
-    uvicorn.run(app, host=host, port=port)

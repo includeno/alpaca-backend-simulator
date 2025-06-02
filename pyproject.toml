@@ -1,0 +1,60 @@
+[tool.pytest.ini_options]
+pythonpath = [
+  "." # Add root directory to pythonpath so that 'alpaca_simulator' can be found
+]
+testpaths = [
+    "alpaca_simulator/tests"
+]
+# Add asyncio mode if pytest-asyncio is used, default is 'auto' or 'strict'
+# asyncio_mode = "auto"
+# You might want to ignore the old integration tests for now if they fail:
+# addopts = "--ignore=alpaca_simulator/tests/test_alpaca_py_integration.py"
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311'] # Specify compatible Python versions
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = [
+    "E203", # Whitespace before ':' (often conflicts with Black)
+    "W503"  # Line break before binary operator (often conflicts with Black)
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "docs",
+    "build",
+    "dist",
+    ".venv"
+]
+
+[project]
+name = "alpaca-backend-simulator"
+version = "0.1.0"
+description = "A local backend simulator for the Alpaca API, allowing for data manipulation and testing."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT License"} # Assuming MIT based on typical GitHub projects, update if different
+authors = [
+  {name = "Your Name / Organization", email = "your@email.com"}, # Placeholder
+]
+dependencies = [
+    # List runtime dependencies here, mirroring requirements.txt without versions for broader compatibility
+    # or with compatible versions e.g. "fastapi>=0.70.0"
+    # For now, users will rely on requirements.txt for specific versions.
+    # This section is more for package building.
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "flake8",
+    "black",
+    "httpx",
+]
+
+# If you want to make the package installable with `pip install .`
+# you would need a setup.py or more details in pyproject.toml under [project.scripts] or [project.entry-points]
+# For this refactoring, focusing on dev tools configuration.

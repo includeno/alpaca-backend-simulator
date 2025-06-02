@@ -4,3 +4,8 @@ fastapi
 uvicorn
 pytest
 alpaca-py
+pytest-asyncio
+flake8
+black
+httpx
+pydantic
